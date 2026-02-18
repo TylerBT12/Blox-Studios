@@ -10,7 +10,7 @@ TIERS = ["Gold", "Platinum", "Enterprise"]
 
 class PremiumManager:
     def __init__(self):
-        self.store = JsonStore("data/premium.json", {"guilds": {}, "licenses": {}})
+        self.store = JsonStore("data/premium.json", {"guilds": {}, "licenses": {}, "controllers": {}})
 
     def get(self, guild_id: int) -> dict[str, Any]:
         data = self.store.read()
@@ -83,3 +83,36 @@ class PremiumManager:
         data["licenses"][key] = lic
         self.store.write(data)
         return lic
+
+    def list_controllers(self, guild_id: int) -> list[int]:
+        data = self.store.read()
+        return data.get("controllers", {}).get(str(guild_id), [])
+
+    def add_controller(self, guild_id: int, user_id: int) -> list[int]:
+        def updater(data):
+            controllers = data.setdefault("controllers", {})
+            arr = set(controllers.get(str(guild_id), []))
+            arr.add(user_id)
+            controllers[str(guild_id)] = sorted(arr)
+            data["controllers"] = controllers
+            return data
+
+        new_data = self.store.update(updater)
+        return new_data.get("controllers", {}).get(str(guild_id), [])
+
+    def remove_controller(self, guild_id: int, user_id: int) -> list[int]:
+        def updater(data):
+            controllers = data.setdefault("controllers", {})
+            arr = set(controllers.get(str(guild_id), []))
+            arr.discard(user_id)
+            controllers[str(guild_id)] = sorted(arr)
+            data["controllers"] = controllers
+            return data
+
+        new_data = self.store.update(updater)
+        return new_data.get("controllers", {}).get(str(guild_id), [])
+
+    def can_control(self, guild_id: int, user_id: int, owner_ids: list[int]) -> bool:
+        if user_id in owner_ids:
+            return True
+        return user_id in self.list_controllers(guild_id)

@@ -21,6 +21,8 @@ COGS = [
     "cogs.config",
     "cogs.analytics",
     "cogs.command_menu",
+    "cogs.presence",
+    "cogs.utility",
 ]
 
 

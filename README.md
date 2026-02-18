@@ -14,6 +14,9 @@ Production-structured Discord bot with slash-first architecture, premium licensi
 - Session and staff analytics
 - Configurable permissions/channels/embeds
 - Command menu system with category/search/all views (owner commands visible to owner)
+- 24/7-style presence updater (`Watching server count: X`)
+- Premium controller system so you choose who can manage premium per guild
+- Interactive config menu command with clickable category navigation
 
 ## Quick start
 1. Create `config.json` from template (auto-created on first run).
