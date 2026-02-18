@@ -69,6 +69,17 @@ class SessionsCog(commands.Cog):
             lines.append(f"{name}: {info.get('total_seconds', 0)/3600:.2f}h")
         await interaction.response.send_message("\n".join(lines) if lines else "No session data")
 
+    @session.command(name="history", description="View recent session history")
+    async def history(self, interaction: discord.Interaction, member: discord.Member | None = None):
+        member = member or interaction.user
+        info = self.bot.session_store.read().get(str(interaction.guild_id), {}).get(str(member.id), {})
+        history = info.get("history", [])[-10:]
+        if not history:
+            await interaction.response.send_message("No session history found.")
+            return
+        lines = [f"{i+1}. {h['start']} -> {h['end']} ({h['seconds']/3600:.2f}h)" for i, h in enumerate(history)]
+        await interaction.response.send_message("\n".join(lines))
+
 
 async def setup(bot):
     cog = SessionsCog(bot)

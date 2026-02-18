@@ -20,6 +20,7 @@ COGS = [
     "cogs.staff",
     "cogs.config",
     "cogs.analytics",
+    "cogs.command_menu",
 ]
 
 

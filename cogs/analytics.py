@@ -36,6 +36,18 @@ class AnalyticsCog(commands.Cog):
     async def health(self, interaction: discord.Interaction):
         await interaction.response.send_message(f"Latency={round(self.bot.latency*1000)}ms | Guilds={len(self.bot.guilds)} | Users={sum(g.member_count or 0 for g in self.bot.guilds)}")
 
+    @analytics.command(name="topcommands", description="Top used commands")
+    async def topcommands(self, interaction: discord.Interaction):
+        data = self.bot.analytics_store.read()["commands"]
+        top = sorted(data.items(), key=lambda kv: kv[1], reverse=True)[:10]
+        out = "\n".join([f"{k}: {v}" for k, v in top]) or "No command usage yet."
+        await interaction.response.send_message(out[:1900])
+
+    @analytics.command(name="command", description="Show usage for one command key")
+    async def command(self, interaction: discord.Interaction, key: str):
+        data = self.bot.analytics_store.read()["commands"]
+        await interaction.response.send_message(f"{key}: {data.get(key, 0)} uses")
+
 
 async def setup(bot):
     cog = AnalyticsCog(bot)

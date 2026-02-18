@@ -87,6 +87,38 @@ class DashboardCog(commands.Cog):
         self.bot.guild_store.update(updater)
         await interaction.response.send_message("Dashboard settings reset.")
 
+    @dash.command(name="preview", description="Preview dashboard embed without posting")
+    async def preview(self, interaction: discord.Interaction):
+        conf = self.bot.guild_store.read().get(str(interaction.guild_id), {})
+        status = "Premium" if self.bot.premium.is_active(interaction.guild_id) else "Free"
+        desc = conf.get("dashboard_template", "Server: {guild_name}\nMembers: {member_count}\nSession: {session_status}\nPremium: {premium_status}\nUpdated: {timestamp}")
+        desc = apply_variables(desc, interaction.guild, interaction.user, {"session_status": "Online", "premium_status": status})
+        e = build_embed(self.bot, interaction.guild, "Dashboard Preview", desc)
+        await interaction.response.send_message(embed=e, ephemeral=True)
+
+    @dash.command(name="refresh_now", description="Force refresh the linked dashboard message")
+    async def refresh_now(self, interaction: discord.Interaction):
+        conf = self.bot.guild_store.read().get(str(interaction.guild_id), {})
+        message_id = conf.get("dashboard_message_id")
+        channel_id = conf.get("dashboard_channel_id")
+        if not message_id or not channel_id:
+            await interaction.response.send_message("No linked dashboard message found.", ephemeral=True)
+            return
+        channel = interaction.guild.get_channel(channel_id)
+        if not channel:
+            await interaction.response.send_message("Configured dashboard channel not found.", ephemeral=True)
+            return
+        try:
+            msg = await channel.fetch_message(message_id)
+        except discord.NotFound:
+            await interaction.response.send_message("Dashboard message no longer exists.", ephemeral=True)
+            return
+        status = "Premium" if self.bot.premium.is_active(interaction.guild_id) else "Free"
+        desc = conf.get("dashboard_template", "Server: {guild_name}\nMembers: {member_count}\nSession: {session_status}\nPremium: {premium_status}\nUpdated: {timestamp}")
+        desc = apply_variables(desc, interaction.guild, interaction.user, {"session_status": "Online", "premium_status": status})
+        await msg.edit(embed=build_embed(self.bot, interaction.guild, "Live Dashboard", desc))
+        await interaction.response.send_message("Dashboard refreshed.", ephemeral=True)
+
     @tasks.loop(seconds=120)
     async def loop(self):
         guild_data = self.bot.guild_store.read()

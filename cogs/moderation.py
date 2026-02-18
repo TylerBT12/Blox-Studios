@@ -69,6 +69,18 @@ class ModerationCog(commands.Cog):
         self.bot.warn_store.update(updater)
         await interaction.response.send_message("Warning removed if it existed.")
 
+    @mod.command(name="clearwarnings", description="Clear all warnings for a member")
+    async def clearwarnings(self, interaction: discord.Interaction, member: discord.Member):
+        def updater(data):
+            g = data.get(str(interaction.guild_id), {})
+            g[str(member.id)] = []
+            data[str(interaction.guild_id)] = g
+            return data
+
+        self.bot.warn_store.update(updater)
+        case_id = self._new_case(interaction.guild_id, "clearwarnings", member.id, interaction.user.id, "Cleared warnings")
+        await interaction.response.send_message(f"Cleared warnings for {member.mention}. Case #{case_id}")
+
     @mod.command(name="kick", description="Kick member")
     async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: str = "No reason provided"):
         case_id = self._new_case(interaction.guild_id, "kick", member.id, interaction.user.id, reason)

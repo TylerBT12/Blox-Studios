@@ -13,6 +13,7 @@ Production-structured Discord bot with slash-first architecture, premium licensi
 - Appeals with staff review buttons
 - Session and staff analytics
 - Configurable permissions/channels/embeds
+- Command menu system with category/search/all views (owner commands visible to owner)
 
 ## Quick start
 1. Create `config.json` from template (auto-created on first run).

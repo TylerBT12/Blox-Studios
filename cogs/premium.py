@@ -47,6 +47,27 @@ class PremiumCog(commands.Cog):
         text = "Gold: advanced embeds\nPlatinum: dashboard widgets + analytics\nEnterprise: full analytics + white-label branding"
         await interaction.response.send_message(text)
 
+
+    @premium.command(name="activate_tier", description="Activate premium tier manually (owner only)")
+    async def activate_tier(self, interaction: discord.Interaction, tier: str, duration: str):
+        if interaction.user.id not in self.bot.config.get("owner_ids", []):
+            await interaction.response.send_message("Owner only.", ephemeral=True)
+            return
+        if tier not in TIERS:
+            await interaction.response.send_message(f"Tier must be one of {TIERS}", ephemeral=True)
+            return
+        expiry = parse_duration(duration)
+        self.bot.premium.set_premium(interaction.guild_id, tier, expiry.isoformat() if expiry else None, interaction.user.id)
+        await interaction.response.send_message(f"Premium updated to {tier} (expires: {format_dt(expiry.isoformat() if expiry else None)})")
+
+    @premium.command(name="deactivate", description="Deactivate premium for this guild (owner only)")
+    async def deactivate(self, interaction: discord.Interaction):
+        if interaction.user.id not in self.bot.config.get("owner_ids", []):
+            await interaction.response.send_message("Owner only.", ephemeral=True)
+            return
+        self.bot.premium.remove_premium(interaction.guild_id)
+        await interaction.response.send_message("Premium deactivated for this guild.")
+
     @app_commands.command(name="license_generate", description="Generate a license key (owner only)")
     async def license_generate(self, interaction: discord.Interaction, tier: str, duration: str, uses: app_commands.Range[int, 1, 100] = 1):
         if interaction.user.id not in self.bot.config.get("owner_ids", []):
