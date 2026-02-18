@@ -94,4 +94,3 @@ class ModerationCog(commands.Cog):
 async def setup(bot):
     cog = ModerationCog(bot)
     await bot.add_cog(cog)
-    bot.tree.add_command(cog.mod)

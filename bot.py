@@ -65,7 +65,7 @@ async def main() -> None:
     bot = BloxBot()
     token = bot.config.get("token")
     if not token or token == "PUT_TOKEN_HERE":
-        raise RuntimeError("Set token in config.json")
+        raise SystemExit("Set your Discord bot token in config.json (field: token) and restart.")
     await bot.start(token)
 
 

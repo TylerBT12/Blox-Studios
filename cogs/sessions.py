@@ -73,4 +73,3 @@ class SessionsCog(commands.Cog):
 async def setup(bot):
     cog = SessionsCog(bot)
     await bot.add_cog(cog)
-    bot.tree.add_command(cog.session)

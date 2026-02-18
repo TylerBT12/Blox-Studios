@@ -70,5 +70,3 @@ class PremiumCog(commands.Cog):
 async def setup(bot):
     cog = PremiumCog(bot)
     await bot.add_cog(cog)
-    bot.tree.add_command(cog.premium)
-    bot.tree.add_command(cog.license_generate)
